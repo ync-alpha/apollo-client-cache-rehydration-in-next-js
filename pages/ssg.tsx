@@ -16,10 +16,10 @@ interface PostEdge {
 const POSTS_PER_PAGE = 10;
 
 const GET_POSTS = gql`
-  query getPosts($first: Int!, $after: String) {
-    posts(first: $first, after: $after) {
+  query getPosts($take: Int!, $after: Int) {
+    posts(take: $take, after: $after) {
       pageInfo {
-        hasNextPage
+        hasMore
         endCursor
       }
       edges {
@@ -37,7 +37,7 @@ const GET_POSTS = gql`
 export default function SSG() {
   const { loading, error, data } = useQuery(GET_POSTS, {
     variables: {
-      first: POSTS_PER_PAGE,
+      take: POSTS_PER_PAGE,
       after: null,
     }
   });
@@ -72,7 +72,7 @@ export async function getStaticProps(context: GetStaticPropsContext) {
   await apolloClient.query({
     query: GET_POSTS,
     variables: {
-      first: POSTS_PER_PAGE,
+      take: POSTS_PER_PAGE,
       after: null,
     }
   });

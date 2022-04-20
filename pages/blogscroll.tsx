@@ -1,4 +1,4 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql, useQuery, NetworkStatus } from "@apollo/client";
 import { GetStaticPropsContext } from "next";
 
 import { initializeApollo, addApolloState } from "../lib/apolloClient";
@@ -13,7 +13,7 @@ interface PostEdge {
   node: Post;
 };
 
-const POSTS_PER_PAGE = 3;
+const POSTS_PER_PAGE = 5;
 
 const GET_POSTS = gql`
   query getPosts($take: Int!, $after: Int) {
@@ -34,8 +34,18 @@ const GET_POSTS = gql`
   }
 `;
 
+const handleScroll = ({ currentTarget }: any, onLoadMore: ()=> void, hasMore: boolean) => {
+  if (
+    hasMore && 
+    currentTarget.scrollTop + currentTarget.clientHeight >=
+    currentTarget.scrollHeight 
+  ) {
+    onLoadMore();
+  }
+};
+
 export default function Blog() {
-  const { loading, error, data, fetchMore } = useQuery(GET_POSTS, {
+  const { loading, error, data, fetchMore, networkStatus } = useQuery(GET_POSTS, {
     variables: {
       take: POSTS_PER_PAGE,
       after: null,
@@ -45,10 +55,21 @@ export default function Blog() {
   const posts = data?.posts?.edges?.map((edge: PostEdge) => edge.node) || [];
   const havePosts = Boolean(posts.length);
   const haveMorePosts = Boolean(data?.posts?.pageInfo?.hasMore);
+  const loadingMore = networkStatus === NetworkStatus.fetchMore
+  const loadMore = () => {
+    fetchMore({
+      variables: {
+        take: 5,
+        after: data.posts.pageInfo.endCursor
+      },
+    })
+  }
 
   return (
     <Layout>
-      <h1>Blog</h1>
+      <h1>Blog Scroll</h1>
+      <div className="chapter-list"
+        onScroll={e => handleScroll(e, loadMore, haveMorePosts)}>
       {!havePosts && loading ? (
         <p>Loading...</p>
       ) : error ? (
@@ -64,16 +85,12 @@ export default function Blog() {
           );
         })
       )}
+      </div>
       {havePosts ? (
         haveMorePosts ? (
           <form onSubmit={event => {
             event.preventDefault();
-            fetchMore({
-              variables: {
-                take: 5,
-                after: data.posts.pageInfo.endCursor,
-              }
-            });
+            loadMore()
           }}>
             <button type="submit" disabled={loading}>
               {loading ? "Loading..." : "Load more"}
@@ -83,6 +100,17 @@ export default function Blog() {
           <p>✅ All posts loaded.</p>
         )
       ) : null}
+      <style jsx>{`
+        .chapter-list {
+          display: block;
+            border: 1px solid gray;
+            padding: 5px;
+            margin-top: 5px;
+            width: 100%;
+            height: 500px;
+            overflow-y: scroll;
+        }
+      `}</style>  
     </Layout>
   );
 }

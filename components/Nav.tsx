@@ -16,6 +16,9 @@ export default function Nav() {
       <div style={{ display: "inline", marginLeft: "2rem" }}>
         <Link href="/blog" ><a>Blog</a></Link>
       </div>
+      <div style={{ display: "inline", marginLeft: "2rem" }}>
+        <Link href="/blogscroll" ><a>Blog_Scroll</a></Link>
+      </div>
     </div>
   );
 }

@@ -14,20 +14,22 @@ interface PostEdge {
 const POSTS_PER_PAGE = 10;
 
 const GET_POSTS = gql`
-  query getPosts($first: Int!, $after: String) {
-    posts(first: $first, after: $after) {
-      pageInfo {
-        hasNextPage
+  query getPosts($take: Int, $after: Int) {
+    posts(take: $take, after: $after) {
+      pageInfo{  
+      	hasMore
         endCursor
+        totalCount
       }
-      edges {
+      edges{
+        cursor
         node {
           id
           databaseId
           title
           slug
         }
-      }
+      }  
     }
   }
 `;
@@ -35,12 +37,13 @@ const GET_POSTS = gql`
 export default function CSR() {
   const { loading, error, data } = useQuery(GET_POSTS, {
     variables: {
-      first: POSTS_PER_PAGE,
+      take: POSTS_PER_PAGE,
       after: null,
     }
   });
   const posts = data?.posts?.edges?.map((edge: PostEdge) => edge.node) || [];
   const havePosts = Boolean(posts.length);
+
 
   return (
     <Layout>
@@ -54,7 +57,10 @@ export default function CSR() {
       ) : (
         posts.map((post: Post) => {
           return (
-            <article key={post.databaseId} style={{ border: "2px solid #eee", padding: "1rem", marginBottom: "1rem", borderRadius: "10px" }}>
+            <article key={post.databaseId} 
+              style={{ 
+                  border: "2px solid #eee", padding: "1rem", 
+                  marginBottom: "1rem", borderRadius: "10px" }}>
               <h2>{post.title}</h2>
             </article>
           );
