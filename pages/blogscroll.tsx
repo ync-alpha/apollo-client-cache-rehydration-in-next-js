@@ -103,7 +103,7 @@ export default function Blog() {
       <style jsx>{`
         .chapter-list {
           display: block;
-            border: 1px solid gray;
+            border: 0px solid gray;
             padding: 5px;
             margin-top: 5px;
             width: 100%;
