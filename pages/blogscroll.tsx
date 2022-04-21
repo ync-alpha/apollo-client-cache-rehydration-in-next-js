@@ -86,20 +86,6 @@ export default function Blog() {
         })
       )}
       </div>
-      {havePosts ? (
-        haveMorePosts ? (
-          <form onSubmit={event => {
-            event.preventDefault();
-            loadMore()
-          }}>
-            <button type="submit" disabled={loading}>
-              {loading ? "Loading..." : "Load more"}
-            </button>
-          </form>
-        ) : (
-          <p>✅ All posts loaded.</p>
-        )
-      ) : null}
       <style jsx>{`
         .chapter-list {
           display: block;
@@ -111,6 +97,15 @@ export default function Blog() {
             overflow-y: scroll;
         }
       `}</style>  
+      {havePosts ? (
+        haveMorePosts ? (
+            <button type="submit" disabled={loading} style={{borderRadius: "5px", border: "0", padding: "1em", color: "white", backgroundColor: "lightblue"}}>
+              {loading ? "Loading..." : "Load more"}
+            </button>
+        ) : (
+          <p>✅ All posts loaded.</p>
+        )
+      ) : null}
     </Layout>
   );
 }
